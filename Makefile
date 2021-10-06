@@ -1,3 +1,5 @@
+G ?= main
+
 CFLAGS := -Werror -Wall
 
 D ?= 0
@@ -19,7 +21,7 @@ OUTS += $(2) $(2).txt
 )
 endef
 
-$(call build,,main,< in$(I))
+$(call build,,$(G),< in$(I))
 
 clean:
 	rm -rf $(OUTS)

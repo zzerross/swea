@@ -1,0 +1,23 @@
+4
+aba ababababa
+abra abracadabra
+anan bananaparanabrazil
+ab abba
+result:
+#1 4
+#2 2
+#3 2
+#4 2
+
+1
+ab ab
+result:
+1
+
+1
+aba ababababa
+
+1
+ab abab
+
+

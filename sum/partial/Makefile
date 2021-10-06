@@ -1,4 +1,4 @@
-MAKECMDGOALS ?= main
+G ?= main
 
 CFLAGS := -Werror -Wall
 
@@ -21,7 +21,7 @@ OUTS += $(2) $(2).txt
 )
 endef
 
-$(call build,,$(MAKECMDGOALS),< in$(I))
+$(call build,,$(G),< in$(I))
 
 clean:
 	rm -rf $(OUTS)

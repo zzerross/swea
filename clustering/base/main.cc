@@ -39,9 +39,6 @@ struct Array {
 
 class Cells : public Array<Array<int, kCells>, kCells> {};
 
-extern void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases],
-                     int hy[kHomes], int hx[kHomes]);
-
 struct Cell {
   int y, x;
 
@@ -55,122 +52,117 @@ struct Cell {
   static int Rand() { return ::Rand() % kCells; }
 };
 
-class Test {
- public:
-  Test() : cells_{} {
-    IN1();
+int by_[kBases];
+int bx_[kBases];
+int hy_[kHomes];
+int hx_[kHomes];
+int h2b_[kHomes];
+Cells cells_;
 
-    InitBases();
-    InitHomes();
-    Dump();
+bool IsBase(int b) { return 0 <= b && b <= kBases; }
 
-    do_alloc(h2b_, by_, bx_, hy_, hx_);
+static inline long long Distance(int h, int b) {
+  return abs(by_[b] - hy_[h]) + abs(bx_[b] - hx_[h]);
+}
 
-    OUT1();
+long long Loss() {
+  long long loss = 0;
+  int allocs[kBases]{};
+
+  for (int h = 0; h < kHomes; h++) {
+    if (cells_[hy_[h]][hx_[h]] != -1) {
+      loss += kLoss;
+      continue;
+    }
+    cells_[hy_[h]][hx_[h]] = 0;
+
+    int b = h2b_[h];
+    if (!IsBase(b)) {
+      loss += kLoss;
+    } else if (kAllocs <= allocs[b]) {
+      loss += kLoss;
+    } else {
+      loss += Distance(h, b);
+      allocs[b]++;
+    }
   }
 
-  long long Loss() {
-    long long loss = 0;
-    int allocs[kBases]{};
+  for (int b = 0; b < kBases; b++) {
+    if (cells_[by_[b]][bx_[b]] != b + 1) {
+      return kLoss * kHomes;
+    }
 
-    for (int h = 0; h < kHomes; h++) {
-      if (cells_[hy_[h]][hx_[h]] != -1) {
-        loss += kLoss;
-        continue;
-      }
-      cells_[hy_[h]][hx_[h]] = 0;
+    cells_[by_[b]][bx_[b]] = 0;
+  }
 
-      int b = h2b_[h];
-      if (!IsBase(b)) {
-        loss += kLoss;
-      } else if (kAllocs <= allocs[b]) {
-        loss += kLoss;
+  return loss;
+}
+
+void Dump() {
+#if 1 <= DEBUG
+  for (int y = 0; y < kCells; y++) {
+    P1("%10d: ", y);
+    for (int x = 0; x < kCells; x++) {
+      if (cells_[y][x]) {
+        P1("%02d ", cells_[y][x]);
       } else {
-        loss += Distance(h, b);
-        allocs[b]++;
+        P1(".. ");
       }
     }
-
-    for (int b = 0; b < kBases; b++) {
-      if (cells_[by_[b]][bx_[b]] != b + 1) {
-        return kLoss * kHomes;
-      }
-
-      cells_[by_[b]][bx_[b]] = 0;
-    }
-
-    return loss;
+    P1("\n");
   }
-
- private:
-  bool IsBase(int b) { return 0 <= b && b <= kBases; }
-
-  long long Distance(int h, int b) {
-    return abs(by_[b] - hy_[h]) + abs(bx_[b] - hx_[h]);
-  }
-
-  void Dump() {
-#if 2 <= DEBUG
-    for (int y = 0; y < kCells; y++) {
-      D1();
-      for (int x = 0; x < kCells; x++) {
-        if (cells_[y][x]) {
-          P1("%2d ", cells_[y][x]);
-        } else {
-          P1(".. ");
-        }
-      }
-      P1("\n");
-    }
 #endif
-  }
+}
 
-  void InitBases() {
-    IN1();
+void InitBases() {
+  IN1();
 
-    for (int b = 0; b < kBases; b++) {
-      Cell c;
-      while (cells_[c.y][c.x]) {
-        c.Init();
-      }
-
-      cells_[c.y][c.x] = b + 1;
-      by_[b] = c.y;
-      bx_[b] = c.x;
+  for (int b = 0; b < kBases; b++) {
+    Cell c;
+    while (cells_[c.y][c.x]) {
+      c.Init();
     }
 
-    OUT1();
+    cells_[c.y][c.x] = b + 1;
+    by_[b] = c.y;
+    bx_[b] = c.x;
   }
 
-  void InitHomes() {
-    IN1();
+  OUT1();
+}
 
-    for (int h = 0; h < kHomes; h++) {
-      Cell c;
-      while (cells_[c.y][c.x]) {
-        c.Init();
-      }
+void InitHomes() {
+  IN1();
 
-      cells_[c.y][c.x] = -1;
-      hy_[h] = c.y;
-      hx_[h] = c.x;
-
-      h2b_[h] = h % kBases;
+  for (int h = 0; h < kHomes; h++) {
+    Cell c;
+    while (cells_[c.y][c.x]) {
+      c.Init();
     }
 
-    OUT1();
+    cells_[c.y][c.x] = -1;
+    hy_[h] = c.y;
+    hx_[h] = c.x;
+
+    h2b_[h] = h % kBases;
   }
 
-  int by_[kBases];
-  int bx_[kBases];
+  OUT1();
+}
 
-  int hy_[kHomes];
-  int hx_[kHomes];
+void Init() {
+  IN1();
 
-  int h2b_[kHomes];
+  InitBases();
+  InitHomes();
+  // Dump();
 
-  Cells cells_;
-};
+  extern void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases],
+                       int hy[kHomes], int hx[kHomes]);
+  do_alloc(h2b_, by_, bx_, hy_, hx_);
+
+  OUT1();
+}
 
 int main(void) {
   setbuf(stdout, NULL);
@@ -178,7 +170,8 @@ int main(void) {
   long long loss = 0;
 
   for (int tc = 1; tc--;) {
-    loss += make_shared<Test>()->Loss();
+    Init();
+    loss += Loss();
   }
 
   printf("MAX : %10lld\n", kPass);

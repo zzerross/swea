@@ -2,7 +2,24 @@
 
 #include <memory>
 
-using namespace std;
+#if DEBUG
+#else
+#define P1(fmt, ...)
+#define D1(fmt, ...)
+#define IN1(fmt, ...)
+#define OUT1(fmt, ...)
+#endif
+
+#if INPUT
+#else
+constexpr static int kCells = 3000;
+constexpr static int kBases = 4;
+constexpr static int kHomes = 110000;
+constexpr static int kAllocs = 30000;
+constexpr static int kLoss = 6000LL;
+#endif
+
+constexpr static long long kPass = 2490000000LL;
 
 int Rand(void) {
   static int seed = 18043000;
@@ -64,14 +81,12 @@ class Test {
       cells_[hy_[h]][hx_[h]] = 0;
 
       int b = h2b_[h];
-      if (b < 0) {
-        loss += kLoss;
-      } else if (kBases <= b) {
+      if (!IsBase(b)) {
         loss += kLoss;
       } else if (kAllocs <= allocs[b]) {
         loss += kLoss;
       } else {
-        loss += abs(by_[b] - hy_[h]) + abs(bx_[b] - hx_[h]);
+        loss += Distance(h, b);
         allocs[b]++;
       }
     }
@@ -88,7 +103,14 @@ class Test {
   }
 
  private:
+  bool IsBase(int b) { return 0 <= b && b <= kBases; }
+
+  long long Distance(int h, int b) {
+    return abs(by_[b] - hy_[h]) + abs(bx_[b] - hx_[h]);
+  }
+
   void Dump() {
+#if 2 <= DEBUG
     for (int y = 0; y < kCells; y++) {
       D1();
       for (int x = 0; x < kCells; x++) {
@@ -100,6 +122,7 @@ class Test {
       }
       P1("\n");
     }
+#endif
   }
 
   void InitBases() {
@@ -158,7 +181,9 @@ int main(void) {
     loss += make_shared<Test>()->Loss();
   }
 
-  cout << (loss <= 2490000000 ? "PASS" : "LOSS") << ": " << loss << endl;
+  printf("MAX : %10lld\n", kPass);
+  printf("INIT: %10lld\n", 199720088LL);
+  printf("%4s: %10lld\n", loss <= kPass ? "PASS" : "LOSS", loss);
 
   return 0;
 }

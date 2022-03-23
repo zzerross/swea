@@ -1,10 +1,12 @@
 CFLAGS := -Werror -Wall
 
 D ?= 0
-CFLAGS := -DkDEBUG=$(D)
-CFLAGS += -include debug.h
+CFLAGS += -DDEBUG=$(D)
 
-I ?= in0
+I ?= 0
+CFLAGS += -DINPUT=$(I)
+
+CFLAGS += -include debug.h
 
 define build
 $(eval 

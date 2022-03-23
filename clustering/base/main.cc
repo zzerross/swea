@@ -58,8 +58,9 @@ int hy_[kHomes];
 int hx_[kHomes];
 int h2b_[kHomes];
 Cells cells_;
+Cells map_;
 
-bool IsBase(int b) { return 0 <= b && b <= kBases; }
+bool IsBase(int b) { return 0 <= b && b < kBases; }
 
 static inline long long Distance(int h, int b) {
   return abs(by_[b] - hy_[h]) + abs(bx_[b] - hx_[h]);
@@ -98,13 +99,16 @@ long long Loss() {
   return loss;
 }
 
-void Dump() {
+void Dump(const char* s) {
 #if 1 <= DEBUG
+  P1("%10s:\n", s);
   for (int y = 0; y < kCells; y++) {
     P1("%10d: ", y);
     for (int x = 0; x < kCells; x++) {
-      if (cells_[y][x]) {
-        P1("%02d ", cells_[y][x]);
+      if (0 < map_[y][x]) {
+        P1("b%d ", map_[y][x]);
+      } else if (map_[y][x] < 0) {
+        P1("%d ", map_[y][x]);
       } else {
         P1(".. ");
       }
@@ -113,6 +117,8 @@ void Dump() {
   }
 #endif
 }
+
+void Map(int y, int x, int b) { map_[y][x] = b; }
 
 void InitBases() {
   IN1();
@@ -126,6 +132,8 @@ void InitBases() {
     cells_[c.y][c.x] = b + 1;
     by_[b] = c.y;
     bx_[b] = c.x;
+
+    Map(c.y, c.x, cells_[c.y][c.x]);
   }
 
   OUT1();
@@ -145,6 +153,8 @@ void InitHomes() {
     hx_[h] = c.x;
 
     h2b_[h] = h % kBases;
+
+    Map(c.y, c.x, -(h2b_[h] + 1));
   }
 
   OUT1();
@@ -155,7 +165,7 @@ void Init() {
 
   InitBases();
   InitHomes();
-  // Dump();
+  Dump(__func__);
 
   extern void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases],
                        int hy[kHomes], int hx[kHomes]);

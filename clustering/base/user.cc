@@ -1,7 +1,9 @@
 #if DEBUG
-extern void Dump();
+extern void Dump(const char* s);
+extern void Map(int y, int x, int b);
 #else
-#define Dump()
+#define Dump(s)
+#define Map(y, x, b)
 #endif
 
 #ifndef P1
@@ -27,6 +29,8 @@ constexpr static int kAllocs = 30000;
 constexpr static int kLoss = 6000LL;
 #endif
 
+constexpr static int kDistance = kCells * 2;
+
 static int* by_;
 static int* bx_;
 
@@ -45,21 +49,34 @@ bool Assign() {
   IN1();
 
   unsigned long long u{};
+  int a[kBases]{};
 
   for (int h = 0; h < kHomes; h++) {
-    auto d0 = Distance(h, h2b_[h]);
+    auto min = Distance(h, h2b_[h]);
+    if (kAllocs - 1 <= a[h2b_[h]]) {
+      min = kDistance;
+    }
 
     for (int b = 0; b < kBases; b++) {
-      auto d1 = Distance(h, b);
-      if (d1 < d0) {
-        D2("h=%5d b=%d(%5lld)->%d(%5lld)", h, h2b_[h], d0, b, d1);
-        d0 = d1;
-        h2b_[h] = b;
+      if (kAllocs - 1 <= a[b]) {
+        continue;
+      }
+
+      auto d = Distance(h, b);
+      if (d < min) {
+        min = d;
         u++;
+        h2b_[h] = b;
+
+        Map(hy_[h], hx_[h], -(b + 1));
       }
     }
+
+    a[h2b_[h]]++;
   }
 
+  Dump(__func__);
+  D1("a{%d %d %d %d} < %d", a[0], a[1], a[2], a[3], kAllocs);
   OUT1("u=%llu", u);
   return !!u;
 }
@@ -68,6 +85,8 @@ int Min(int a, int b) { return a < b ? a : b; }
 int Max(int a, int b) { return a > b ? a : b; }
 
 void Update() {
+  IN1();
+
   struct Bound {
     int y0, y1, x0, x1;
 
@@ -86,9 +105,17 @@ void Update() {
   for (int i = 0; i < kBases; i++) {
     auto& b = bounds[i];
 
+    Map(by_[i], bx_[i], 0);
+
     by_[i] = (b.y0 + b.y1) / 2;
     bx_[i] = (b.x0 + b.x1) / 2;
+
+    D1("%2d %2d %2d %2d:%2d %2d", b.y0, b.y1, b.x0, b.x1, by_[i], bx_[i]);
+    Map(by_[i], bx_[i], i + 1);
   }
+
+  Dump(__func__);
+  OUT1();
 }
 
 void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],

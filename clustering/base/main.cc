@@ -4,7 +4,14 @@
 #include <memory>
 
 #if DEBUG
+#define ASSERT(expr)       \
+  ({                       \
+    bool r;                \
+    assert(!(r = (expr))); \
+    r;                     \
+  })
 #else
+#define ASSERT(expr) (expr)
 #define P1(fmt, ...)
 #define D1(fmt, ...)
 #define IN1(fmt, ...)
@@ -19,13 +26,6 @@ constexpr static int kHomes = 110000;
 constexpr static int kAllocs = 30000;
 constexpr static int kLoss = 6000LL;
 #endif
-
-#define ASSERT(expr)       \
-  ({                       \
-    bool r;                \
-    assert(!(r = (expr))); \
-    r;                     \
-  })
 
 constexpr static long long kPass = 2490000000LL;
 
@@ -91,8 +91,12 @@ long long Loss() {
     } else if (ASSERT(kAllocs <= allocs[b])) {
       loss += kLoss;
     } else {
-      loss += Distance(h, b);
+      auto d = Distance(h, b);
+      loss += d;
       allocs[b]++;
+      if ((kCells / 2) < d) {
+        D1("allocs[%d]=%5d d=%10lld loss=%10lld", b, allocs[b], d, loss);
+      }
     }
   }
 
@@ -107,26 +111,52 @@ long long Loss() {
   return loss;
 }
 
-void Dump(const char* s) {
-#if 1 <= DEBUG
-  P1("%10s:\n", s);
-  for (int y = 0; y < kCells; y++) {
-    P1("%10d: ", y);
-    for (int x = 0; x < kCells; x++) {
-      if (0 < map_[y][x]) {
-        P1("b%d ", map_[y][x]);
-      } else if (map_[y][x] < 0) {
-        P1("%d ", map_[y][x]);
-      } else {
-        P1(".. ");
+constexpr static int kRate = 100;
+
+void Set(int y, int x, int b) { map_[y][x] = b; }
+
+int Get(int y, int x) {
+  int c[kBases]{};
+
+  for (int i = 0; i < kRate; i++) {
+    for (int j = 0; j < kRate; j++) {
+      int m = map_[y + i][x + j];
+      if (0 < m) {
+        return m;
+      } else if (m < 0) {
+        c[-m - 1]++;
       }
     }
-    P1("\n");
+  }
+
+  int b = 0;
+  for (int i = 1; i < kBases; i++) {
+    if (c[b] < c[i]) {
+      b = i;
+    }
+  }
+
+  return -(b + 1);
+}
+
+void Dump(const char* s) {
+#if 2 <= DEBUG
+  P2("%10s:\n", s);
+  for (int y = 0; y < kCells; y += kRate) {
+    P2("%10d: ", y);
+    for (int x = 0; x < kCells; x += kRate) {
+      if (0 < Get(y, x)) {
+        P2("+%d ", Get(y, x));
+      } else if (Get(y, x) < 0) {
+        P2("%d ", Get(y, x));
+      } else {
+        P2(".. ");
+      }
+    }
+    P2("\n");
   }
 #endif
 }
-
-void Map(int y, int x, int b) { map_[y][x] = b; }
 
 void InitBases() {
   IN1();
@@ -141,7 +171,7 @@ void InitBases() {
     by_[b] = c.y;
     bx_[b] = c.x;
 
-    Map(c.y, c.x, cells_[c.y][c.x]);
+    Set(c.y, c.x, cells_[c.y][c.x]);
   }
 
   OUT1();
@@ -162,7 +192,7 @@ void InitHomes() {
 
     h2b_[h] = h % kBases;
 
-    Map(c.y, c.x, -(h2b_[h] + 1));
+    Set(c.y, c.x, -(h2b_[h] + 1));
   }
 
   OUT1();
@@ -175,20 +205,21 @@ void Init() {
   InitHomes();
   Dump(__func__);
 
-  extern void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases],
-                       int hy[kHomes], int hx[kHomes]);
-  do_alloc(h2b_, by_, bx_, hy_, hx_);
-
   OUT1();
 }
 
 int main(void) {
   setbuf(stdout, NULL);
+  extern void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases],
+                       int hy[kHomes], int hx[kHomes]);
 
   long long loss = 0;
 
   for (int tc = 1; tc--;) {
     Init();
+
+    do_alloc(h2b_, by_, bx_, hy_, hx_);
+
     loss += Loss();
   }
 

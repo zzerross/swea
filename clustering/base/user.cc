@@ -1,9 +1,9 @@
 #if DEBUG
 extern void Dump(const char* s);
-extern void Map(int y, int x, int b);
+extern int Set(int y, int x, int b);
 #else
 #define Dump(s)
-#define Map(y, x, b)
+#define Set(y, x, b)
 #endif
 
 #ifndef P1
@@ -55,25 +55,25 @@ constexpr static int kQouter = kCells / 4;
 constexpr static int kQouter3 = kQouter * 3;
 
 static void Init() {
-  Map(by_[0], bx_[0], 0);
+  Set(by_[0], bx_[0], 0);
   by_[0] = kQouter;
   bx_[0] = kQouter;
-  Map(by_[0], bx_[0], 1);
+  Set(by_[0], bx_[0], 1);
 
-  Map(by_[1], bx_[1], 0);
+  Set(by_[1], bx_[1], 0);
   by_[1] = kQouter;
   bx_[1] = kQouter3;
-  Map(by_[1], bx_[1], 2);
+  Set(by_[1], bx_[1], 2);
 
-  Map(by_[2], bx_[2], 0);
+  Set(by_[2], bx_[2], 0);
   by_[2] = kQouter3;
   bx_[2] = kQouter;
-  Map(by_[2], bx_[2], 3);
+  Set(by_[2], bx_[2], 3);
 
-  Map(by_[3], bx_[3], 0);
+  Set(by_[3], bx_[3], 0);
   by_[3] = kQouter3;
   bx_[3] = kQouter3;
-  Map(by_[3], bx_[3], 4);
+  Set(by_[3], bx_[3], 4);
 
   Dump(__func__);
 }
@@ -101,7 +101,7 @@ bool Assign() {
         u++;
         h2b_[h] = b;
 
-        Map(hy_[h], hx_[h], -(b + 1));
+        Set(hy_[h], hx_[h], -(b + 1));
       }
     }
 
@@ -132,13 +132,13 @@ void Update() {
   for (int i = 0; i < kBases; i++) {
     auto& b = bounds_[i];
 
-    Map(by_[i], bx_[i], 0);
+    Set(by_[i], bx_[i], 0);
 
     by_[i] = (b.y0 + b.y1) / 2;
     bx_[i] = (b.x0 + b.x1) / 2;
 
     D1("%2d %2d %2d %2d:%2d %2d", b.y0, b.y1, b.x0, b.x1, by_[i], bx_[i]);
-    Map(by_[i], bx_[i], i + 1);
+    Set(by_[i], bx_[i], i + 1);
   }
 
   Dump(__func__);

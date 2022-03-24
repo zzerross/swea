@@ -27,7 +27,8 @@ constexpr static int kAllocs = 30000;
 constexpr static int kLoss = 6000LL;
 #endif
 
-constexpr static long long kPass = 2490000000LL;
+constexpr static int kTests = 20;
+constexpr static long long kPass = 2490000000LL / 20 * kTests;
 
 int Rand(void) {
   static int seed = 18043000;
@@ -215,12 +216,14 @@ int main(void) {
 
   long long loss = 0;
 
-  for (int tc = 1; tc--;) {
+  for (int t = 0; t < kTests; t++) {
     Init();
 
     do_alloc(h2b_, by_, bx_, hy_, hx_);
 
-    loss += Loss();
+    auto l = Loss();
+    printf("l=%10lld\n", l);
+    loss += l;
   }
 
   printf("MAX : %10lld\n", kPass);

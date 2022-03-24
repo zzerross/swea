@@ -1,4 +1,5 @@
-CFLAGS := -Werror -Wall
+CFLAGS := -Werror
+# CFLAGS += -Wall
 
 D ?= 0
 CFLAGS += -DDEBUG=$(D)

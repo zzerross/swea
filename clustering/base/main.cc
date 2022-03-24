@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <cassert>
 #include <memory>
 
 #if DEBUG
@@ -18,6 +19,13 @@ constexpr static int kHomes = 110000;
 constexpr static int kAllocs = 30000;
 constexpr static int kLoss = 6000LL;
 #endif
+
+#define ASSERT(expr)       \
+  ({                       \
+    bool r;                \
+    assert(!(r = (expr))); \
+    r;                     \
+  })
 
 constexpr static long long kPass = 2490000000LL;
 
@@ -71,16 +79,16 @@ long long Loss() {
   int allocs[kBases]{};
 
   for (int h = 0; h < kHomes; h++) {
-    if (cells_[hy_[h]][hx_[h]] != -1) {
+    if (ASSERT(cells_[hy_[h]][hx_[h]] != -1)) {
       loss += kLoss;
       continue;
     }
     cells_[hy_[h]][hx_[h]] = 0;
 
     int b = h2b_[h];
-    if (!IsBase(b)) {
+    if (ASSERT(!IsBase(b))) {
       loss += kLoss;
-    } else if (kAllocs <= allocs[b]) {
+    } else if (ASSERT(kAllocs <= allocs[b])) {
       loss += kLoss;
     } else {
       loss += Distance(h, b);
@@ -89,7 +97,7 @@ long long Loss() {
   }
 
   for (int b = 0; b < kBases; b++) {
-    if (cells_[by_[b]][bx_[b]] != b + 1) {
+    if (ASSERT(cells_[by_[b]][bx_[b]] != b + 1)) {
       return kLoss * kHomes;
     }
 

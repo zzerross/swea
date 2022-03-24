@@ -149,5 +149,11 @@ void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],
               int hx[kHomes]) {
   h2b_ = h2b, by_ = by, bx_ = bx, hy_ = hy, hx_ = hx;
 
-  for (Init(); Assign(); Update());
+#if UPDATE
+  for (Init(); Assign(); Update())
+    ;
+#else
+  while (Assign())
+    ;
+#endif
 }

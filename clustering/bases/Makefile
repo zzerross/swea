@@ -21,7 +21,7 @@ OUTS += $(2) $(2).txt
 )
 endef
 
-$(call build,,main,user.cc main.cc,)
+$(call build,,main,kmeans.cc main.cc,)
 
 clean:
 	rm -rf $(OUTS)

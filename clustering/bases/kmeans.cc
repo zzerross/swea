@@ -6,18 +6,13 @@ extern int Set(int y, int x, int b);
 #define Set(y, x, b)
 #endif
 
-#ifndef P1
-#define P1(fmt, ...)
-#define D1(fmt, ...)
-#define IN1(fmt, ...)
-#define OUT1(fmt, ...)
-#endif
-
-#ifndef P2
-#define P2(fmt, ...)
-#define D2(fmt, ...)
-#define IN2(fmt, ...)
-#define OUT2(fmt, ...)
+#if PRINT
+#else
+#define A(expr, ...) (expr)
+#define PR(lvl, fmt, ...)
+#define PL(lvl, fmt, ...)
+#define PI(fmt, ...)
+#define PO(fmt, ...)
 #endif
 
 #if INPUT
@@ -79,7 +74,7 @@ static void Init() {
 }
 
 bool Assign() {
-  IN1();
+  PI();
 
   unsigned long long u{};
   int a[kBases]{};
@@ -109,8 +104,8 @@ bool Assign() {
   }
 
   Dump(__func__);
-  D1("a{%d %d %d %d} < %d", a[0], a[1], a[2], a[3], kAllocs);
-  OUT1("u=%llu", u);
+  PL(1, "a{%d %d %d %d} < %d", a[0], a[1], a[2], a[3], kAllocs);
+  PO("u=%llu", u);
   return !!u;
 }
 
@@ -118,7 +113,7 @@ int Min(int a, int b) { return a < b ? a : b; }
 int Max(int a, int b) { return a > b ? a : b; }
 
 void Update() {
-  IN1();
+  PI();
 
   for (int h = 0; h < kHomes; h++) {
     auto& b = bounds_[h2b_[h]];
@@ -137,12 +132,12 @@ void Update() {
     by_[i] = (b.y0 + b.y1) / 2;
     bx_[i] = (b.x0 + b.x1) / 2;
 
-    D1("%2d %2d %2d %2d:%2d %2d", b.y0, b.y1, b.x0, b.x1, by_[i], bx_[i]);
+    PL(1, "%2d %2d %2d %2d:%2d %2d", b.y0, b.y1, b.x0, b.x1, by_[i], bx_[i]);
     Set(by_[i], bx_[i], i + 1);
   }
 
   Dump(__func__);
-  OUT1();
+  PO();
 }
 
 void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],

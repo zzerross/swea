@@ -30,7 +30,7 @@ format:
 	clang-format --style=google -i *.cc *.h
 
 clean:
-	rm -rf $(TARGETS) $(LOGS)
+	rm -rf $(TARGETS)
 
 reset:
 	find ! -name Makefile | xargs rm -rf

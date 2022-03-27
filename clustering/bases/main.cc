@@ -1,21 +1,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <cassert>
-#include <memory>
-
-#if DEBUG
-#define ASSERT(expr)       \
-  ({                       \
-    bool r;                \
-    assert(!(r = (expr))); \
-    r;                     \
-  })
+#if PRINT
 #else
-#define ASSERT(expr) (expr)
-#define P1(fmt, ...)
-#define D1(fmt, ...)
-#define IN1(fmt, ...)
-#define OUT1(fmt, ...)
+#define A(expr, ...) (expr)
+#define PR(lvl, fmt, ...)
+#define PL(lvl, fmt, ...)
+#define PI(fmt, ...)
+#define PO(fmt, ...)
 #endif
 
 #if INPUT
@@ -26,6 +17,8 @@ constexpr static int kHomes = 110000;
 constexpr static int kAllocs = 30000;
 constexpr static int kLoss = 6000LL;
 #endif
+
+constexpr static int kRate = INPUT ? 1 : 100;
 
 constexpr static int kTests = 20;
 constexpr static long long kPass = 2490000000LL / 20 * kTests;
@@ -80,29 +73,29 @@ long long Loss() {
   int allocs[kBases]{};
 
   for (int h = 0; h < kHomes; h++) {
-    if (ASSERT(cells_[hy_[h]][hx_[h]] != -1)) {
+    if (A(cells_[hy_[h]][hx_[h]] != -1)) {
       loss += kLoss;
       continue;
     }
     cells_[hy_[h]][hx_[h]] = 0;
 
     int b = h2b_[h];
-    if (ASSERT(!IsBase(b))) {
+    if (A(!IsBase(b))) {
       loss += kLoss;
-    } else if (ASSERT(kAllocs <= allocs[b])) {
+    } else if (A(kAllocs <= allocs[b])) {
       loss += kLoss;
     } else {
       auto d = Distance(h, b);
       loss += d;
       allocs[b]++;
       if ((kCells / 2) < d) {
-        D1("allocs[%d]=%5d d=%10lld loss=%10lld", b, allocs[b], d, loss);
+        PL(3, "allocs[%d]=%5d d=%10lld loss=%10lld", b, allocs[b], d, loss);
       }
     }
   }
 
   for (int b = 0; b < kBases; b++) {
-    if (ASSERT(cells_[by_[b]][bx_[b]] != b + 1)) {
+    if (A(cells_[by_[b]][bx_[b]] != b + 1)) {
       return kLoss * kHomes;
     }
 
@@ -111,8 +104,6 @@ long long Loss() {
 
   return loss;
 }
-
-constexpr static int kRate = 100;
 
 void Set(int y, int x, int b) { map_[y][x] = b; }
 
@@ -141,26 +132,26 @@ int Get(int y, int x) {
 }
 
 void Dump(const char* s) {
-#if 2 <= DEBUG
-  P2("%10s:\n", s);
+#if 2 <= PRINT
+  PR(2, "%10s:\n", s);
   for (int y = 0; y < kCells; y += kRate) {
-    P2("%10d: ", y);
+    PR(2, "%10d: ", y);
     for (int x = 0; x < kCells; x += kRate) {
       if (0 < Get(y, x)) {
-        P2("+%d ", Get(y, x));
+        PR(2, "+%d ", Get(y, x));
       } else if (Get(y, x) < 0) {
-        P2("%d ", Get(y, x));
+        PR(2, "%d ", Get(y, x));
       } else {
-        P2(".. ");
+        PR(2, ".. ");
       }
     }
-    P2("\n");
+    PR(2, "\n");
   }
 #endif
 }
 
 void InitBases() {
-  IN1();
+  PI();
 
   for (int b = 0; b < kBases; b++) {
     Cell c;
@@ -175,11 +166,11 @@ void InitBases() {
     Set(c.y, c.x, cells_[c.y][c.x]);
   }
 
-  OUT1();
+  PO();
 }
 
 void InitHomes() {
-  IN1();
+  PI();
 
   for (int h = 0; h < kHomes; h++) {
     Cell c;
@@ -196,17 +187,25 @@ void InitHomes() {
     Set(c.y, c.x, -(h2b_[h] + 1));
   }
 
-  OUT1();
+  PO();
 }
 
 void Init() {
-  IN1();
+  PI();
+
+#if 2 <= PRINT
+  for (int y = 0; y < kCells; y++) {
+    for (int x = 0; x < kCells; x++) {
+      Set(y, x, 0);
+    }
+  }
+#endif
 
   InitBases();
   InitHomes();
   Dump(__func__);
 
-  OUT1();
+  PO();
 }
 
 int main(void) {
@@ -222,7 +221,7 @@ int main(void) {
     do_alloc(h2b_, by_, bx_, hy_, hx_);
 
     auto l = Loss();
-    printf("l=%10lld\n", l);
+    PL(2, "l=%10lld", l);
     loss += l;
   }
 

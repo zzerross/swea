@@ -25,6 +25,7 @@ endef
 
 $(call build,sort_stl)
 $(call build,kmeans)
+$(call build,assign)
 
 format:
 	clang-format --style=google -i *.cc *.h

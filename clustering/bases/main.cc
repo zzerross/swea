@@ -12,9 +12,14 @@
 #if INPUT
 #else
 constexpr static int kCells = 3000;
+constexpr static int kQouter = 750;
+constexpr static int kHalf = 1500;
+constexpr static int kThreeQ = 2250;
 constexpr static int kBases = 4;
 constexpr static int kHomes = 110000;
-constexpr static int kAllocs = 30000;
+//                             9000000;
+//                             2250000;
+constexpr static int kAllocs = kHomes;  // 30000;
 constexpr static int kLoss = 6000LL;
 #endif
 
@@ -62,13 +67,13 @@ int h2b_[kHomes];
 Cells cells_;
 Cells map_;
 
-bool IsBase(int b) { return 0 <= b && b < kBases; }
+static bool IsBase(int b) { return 0 <= b && b < kBases; }
 
 static inline long long Distance(int h, int b) {
   return abs(by_[b] - hy_[h]) + abs(bx_[b] - hx_[h]);
 }
 
-long long Loss() {
+static long long Loss() {
   long long loss = 0;
   int allocs[kBases]{};
 
@@ -107,7 +112,7 @@ long long Loss() {
 
 void Set(int y, int x, int b) { map_[y][x] = b; }
 
-int Get(int y, int x) {
+static int Get(int y, int x) {
   int c[kBases]{};
 
   for (int i = 0; i < kRate; i++) {
@@ -150,7 +155,7 @@ void Dump(const char* s) {
 #endif
 }
 
-void InitBases() {
+static void InitBases() {
   PI();
 
   for (int b = 0; b < kBases; b++) {
@@ -169,7 +174,7 @@ void InitBases() {
   PO();
 }
 
-void InitHomes() {
+static void InitHomes() {
   PI();
 
   for (int h = 0; h < kHomes; h++) {
@@ -190,7 +195,7 @@ void InitHomes() {
   PO();
 }
 
-void Init() {
+static void Init() {
   PI();
 
 #if 2 <= PRINT

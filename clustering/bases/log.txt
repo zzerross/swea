@@ -1,0 +1,2 @@
+clang-format --style=google -i *.cc *.h
+g++ -std=c++14 -DPRINT=2 -DINPUT=0 -include debug.h -o assign assign.cc main.cc

@@ -19,11 +19,11 @@ constexpr static int kBases = 4;
 constexpr static int kHomes = 110000;
 //                             9000000;
 //                             2250000;
-constexpr static int kAllocs = kHomes;  // 30000;
+constexpr static int kAllocs = 30000;
 constexpr static int kLoss = 6000LL;
 #endif
 
-constexpr static int kRate = INPUT ? 1 : 100;
+constexpr static int kRate = INPUT ? 1 : 150;
 
 constexpr static int kTests = 20;
 constexpr static long long kPass = 2490000000LL / 20 * kTests;

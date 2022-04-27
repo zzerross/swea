@@ -1,5 +1,5 @@
 CFLAGS := -Werror
-CFLAGS := -std=c++14
+CFLAGS += -std=c++14
 
 P ?= 0
 CFLAGS += -DPRINT=$(P)
@@ -24,6 +24,7 @@ LOGS += $(1).txt
 endef
 
 $(call build,sort_stl)
+$(call build,kmeans_sum)
 $(call build,kmeans)
 $(call build,assign)
 

@@ -2,8 +2,9 @@
 extern void Dump(const char* s);
 extern void Set(int y, int x, int b);
 #else
-void Dump(const char* s){};
-void Set(int y, int x, int b){};
+static void Dump(const char* s){};
+static void Set(int y, int x, int b){};
+
 #define A(expr, ...) (expr)
 #define PR(lvl, fmt, ...)
 #define PL(lvl, fmt, ...)

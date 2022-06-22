@@ -113,7 +113,7 @@ void Assign() {
      allocs_[3], kAllocs);
 }
 
-void Sum() {
+void SumByBases() {
   for (int b = 0; b < kBases; b++) {
     sum_[b] = 0;
   }
@@ -132,7 +132,7 @@ void Sum() {
   DumpAllocs();
 }
 
-void Sort() {
+void SortByHomes() {
   for (int b = 0; b < kBases; b++) {
     nhomes_[b] = 0;
   }
@@ -208,8 +208,8 @@ bool RandomMove() {
   return moved;
 }
 
-size_t Overflows() {
-  size_t overflows = 0;
+unsigned int Overflows() {
+  unsigned int overflows = 0;
   for (int b = 0; b < kBases; b++) overflows += Max(0, allocs_[b] - kAllocs);
   return overflows;
 }
@@ -249,9 +249,9 @@ bool SwapRandomly(auto allocs_, auto sum_) {
 }
 
 void SwapRandomly() {
-  // while (0 < Overflows()) RandomMove();
+  while (0 < Overflows()) RandomMove();
 
-  for (int t = 0; t < kHomes * 100; t++) {
+  for (int t = 0; t < kHomes * 65; t++) {
     SwapRandomly(allocs_, sum_);
   }
 }
@@ -261,10 +261,8 @@ void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],
   h2b_ = h2b, by_ = by, bx_ = bx, hy_ = hy, hx_ = hx;
 
   Assign();
-  Sum();
-  Sort();
+  SumByBases();
+  SortByHomes();
   Normalize();
   SwapRandomly();
 }
-
-// FAIL: 2622542560

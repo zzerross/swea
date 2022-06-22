@@ -1,5 +1,6 @@
 CFLAGS := -Werror
-CFLAGS += -std=c++14 -fconcepts
+CFLAGS += -std=c++14
+CFLAGS += -fconcepts
 
 P ?= 0
 CFLAGS += -DPRINT=$(P)

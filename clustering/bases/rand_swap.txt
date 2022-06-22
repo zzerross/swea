@@ -1,5 +1,5 @@
 MAX : 2490000000
 INIT:  199720088
 FAIL: 4369771572
-0.45user 0.03system 0:00.50elapsed 95%CPU (0avgtext+0avgdata 73204maxresident)k
-0inputs+0outputs (0major+18376minor)pagefaults 0swaps
+0.48user 0.01system 0:00.51elapsed 96%CPU (0avgtext+0avgdata 73204maxresident)k
+0inputs+0outputs (0major+18377minor)pagefaults 0swaps

@@ -214,7 +214,7 @@ size_t Overflows() {
   return overflows;
 }
 
-bool RandomSwap(auto allocs_, auto sum_) {
+bool SwapRandomly(auto allocs_, auto sum_) {
   bool swapped = false;
 
   do {
@@ -248,6 +248,14 @@ bool RandomSwap(auto allocs_, auto sum_) {
   return swapped;
 }
 
+void SwapRandomly() {
+  // while (0 < Overflows()) RandomMove();
+
+  for (int t = 0; t < kHomes * 100; t++) {
+    SwapRandomly(allocs_, sum_);
+  }
+}
+
 void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],
               int hx[kHomes]) {
   h2b_ = h2b, by_ = by, bx_ = bx, hy_ = hy, hx_ = hx;
@@ -256,10 +264,7 @@ void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],
   Sum();
   Sort();
   Normalize();
-  // while (0 < Overflows()) RandomMove();
-  for (int t = 0; t < kHomes; t++) {
-    RandomSwap(allocs_, sum_);
-  }
+  SwapRandomly();
 }
 
 // FAIL: 2622542560

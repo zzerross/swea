@@ -1,5 +1,5 @@
 CFLAGS := -Werror
-CFLAGS += -std=c++14
+CFLAGS += -std=c++14 -fconcepts
 
 P ?= 0
 CFLAGS += -DPRINT=$(P)
@@ -23,10 +23,13 @@ LOGS += $(1).txt
 )
 endef
 
-$(call build,sort_stl)
+$(call build,kmeans_sum_swap)
 $(call build,kmeans_sum)
+$(call build,sort_diff)
+$(call build,sort_stl)
 $(call build,kmeans)
 $(call build,assign)
+$(call build,rand_swap)
 
 format:
 	clang-format --style=google -i *.cc *.h

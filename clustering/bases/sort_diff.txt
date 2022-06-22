@@ -1,0 +1,5 @@
+MAX : 2490000000
+INIT:  199720088
+FAIL: 2646427701
+20.46user 0.04system 0:20.60elapsed 99%CPU (0avgtext+0avgdata 87356maxresident)k
+0inputs+0outputs (0major+21925minor)pagefaults 0swaps

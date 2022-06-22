@@ -30,9 +30,7 @@ constexpr static long long kPass = 2490000000LL / 20 * kTests;
 
 int Rand(void) {
   static int seed = 18043000;
-
   seed = seed * 214013 + 2531011;
-
   return (seed >> 16) & 0x7FFF;
 }
 
@@ -232,7 +230,7 @@ int main(void) {
 
   printf("MAX : %10lld\n", kPass);
   printf("INIT: %10lld\n", 199720088LL);
-  printf("%4s: %10lld\n", loss <= kPass ? "PASS" : "LOSS", loss);
+  printf("%4s: %10lld\n", loss <= kPass ? "PASS" : "FAIL", loss);
 
   return 0;
 }

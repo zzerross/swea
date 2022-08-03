@@ -1,33 +1,38 @@
-G ?= main
+CFLAGS := -Werror
+CFLAGS += -std=c++14
+CFLAGS += -fconcepts
 
-CFLAGS := -Werror -Wall
-
-D ?= 0
-CFLAGS += -DDEBUG=$(D)
-
-T ?= 0
-CFLAGS += -DTEST=$(T)
+P ?= 0
+CFLAGS += -DPRINT=$(P)
 
 I ?= 0
+CFLAGS += -DINPUT=$(I)
+
+# CFLAGS += -include debug.h
+
+.PHONY: FORCE
 
 define build
 $(eval 
-$(2): FORCE $(1)
-	g++ $(CFLAGS) -o $$@ $(2).cpp
-	time ./$(2) $(3) 2>&1 | tee $(2).txt
+$(1): format FORCE
+	g++ $(CFLAGS) -o $$@ $$@.cpp main.cpp
+	time ./$$@ 2>&1 | tee $$@.txt
 	@echo
 
-OUTS += $(2) $(2).txt
+TARGETS += $(1)
+LOGS += $(1).txt
 )
 endef
 
-$(call build,,$(G),< in$(I))
+$(call build,user)
+
+format:
+	find -name *.cpp -or -name *.h | xargs clang-format --style=google -i
 
 clean:
-	rm -rf $(OUTS)
-
-.PHONY: FORCE
+	rm -rf $(TARGETS)
 
 reset:
 	find ! -name Makefile | xargs rm -rf
 
+all: clean $(TARGETS)

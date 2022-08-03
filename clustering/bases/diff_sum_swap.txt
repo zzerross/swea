@@ -1,0 +1,4 @@
+MAX : 2490000000
+FAIL: 2580944521
+26.75user 0.15system 0:28.12elapsed 95%CPU (0avgtext+0avgdata 88388maxresident)k
+0inputs+0outputs (0major+22180minor)pagefaults 0swaps

@@ -229,7 +229,7 @@ int main(void) {
   }
 
   printf("MAX : %10lld\n", kPass);
-  printf("INIT: %10lld\n", 199720088LL);
+  // printf("INIT: %10lld\n", 199720088LL);
   printf("%4s: %10lld\n", loss <= kPass ? "PASS" : "FAIL", loss);
 
   return 0;

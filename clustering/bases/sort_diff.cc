@@ -38,6 +38,20 @@ static int* hy_;
 static int* hx_;
 static int* h2b_;
 
+long long sum_[kBases];
+int allocs_[kBases];
+bool assigned_[kHomes];
+unsigned int overs;
+
+constexpr unsigned int kDistances = kBases * kHomes;
+struct Dist {
+  int home;
+  int base;
+  long long distance;
+};
+Dist distances_[kDistances] = {};
+Dist* overs_[kDistances] = {};
+
 static inline int Abs(int i) { return 0 <= i ? i : -i; }
 
 static inline long long Distance(int h, int b) {
@@ -47,20 +61,45 @@ static inline long long Distance(int h, int b) {
 int Min(int a, int b) { return a < b ? a : b; }
 int Max(int a, int b) { return a > b ? a : b; }
 
-int Next(bitset<kHomes>& assigned_, array<int, kHomes>& homes, int& next) {
-  for (; next < kHomes && homes[next] < kHomes; next++) {
-    if (!assigned_[homes[next]]) {
-      assigned_[homes[next]] = true;
-      return next;
-    }
-  }
-  return -1;
-}
-
 static int Rand(void) {
   static int seed = 18043000;
   seed = seed * 214013 + 2531011;
   return (seed >> 16) & 0x7FFF;
+}
+
+int _min(const int& i, const int& j) { return i < j ? i : j; }
+
+template <typename T>
+void Sort(T* a, T* e, auto P) {
+  int s = e - a;
+  T b[s];
+  for (int n = 1; n < s; n *= 2) {
+    for (int i, j, p = 0; p < s;) {
+      int l = p;
+      int m = _min(p += n, s) - 1;
+      int h = _min(p += n, s) - 1;
+
+      for (i = l; i <= h; i++) b[i] = a[i];
+
+      for (i = l, j = m + 1; i <= m && j <= h;)
+        a[l++] = P(b[i], b[j]) ? b[i++] : b[j++];
+
+      while (i <= m) a[l++] = b[i++];
+      while (j <= h) a[l++] = b[j++];
+    }
+  }
+}
+
+void Init() {
+  for (int b = 0; b < kBases; b++) {
+    allocs_[b] = 0;
+  }
+
+  for (int h = 0; h < kHomes; h++) {
+    assigned_[h] = 0;
+  }
+
+  overs = 0;
 }
 
 bool RandomMove(auto allocs_) {
@@ -84,7 +123,7 @@ bool RandomMove(auto allocs_) {
   return true;
 }
 
-bool RandomSwap(auto allocs_, auto sum_) {
+bool SwapRandomly() {
   bool swapped = false;
 
   do {
@@ -118,65 +157,16 @@ bool RandomSwap(auto allocs_, auto sum_) {
   return swapped;
 }
 
-int _min(const int& i, const int& j) { return i < j ? i : j; }
-
-template <typename T>
-void Sort(T* a, T* e, auto P) {
-  int s = e - a;
-  T b[s];
-  for (int n = 1; n < s; n *= 2) {
-    for (int i, j, p = 0; p < s;) {
-      int l = p;
-      int m = _min(p += n, s) - 1;
-      int h = _min(p += n, s) - 1;
-
-      for (i = l; i <= h; i++) b[i] = a[i];
-
-      for (i = l, j = m + 1; i <= m && j <= h;)
-        a[l++] = P(b[i], b[j]) ? b[i++] : b[j++];
-
-      while (i <= m) a[l++] = b[i++];
-      while (j <= h) a[l++] = b[j++];
-    }
-  }
-}
-
-constexpr size_t kDistances = kBases * kHomes;
-struct Dist {
-  int home;
-  int base;
-  long long distance;
-};
-Dist distances_[kDistances] = {};
-Dist* overs_[kDistances] = {};
-
-size_t Overflows(auto allocs_) {
-  size_t overflows = 0;
-  for (int b = 0; b < kBases; b++) overflows += Max(0, allocs_[b] - kAllocs);
-  return overflows;
-}
-
-void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],
-              int hx[kHomes]) {
-  h2b_ = h2b, by_ = by, bx_ = bx, hy_ = hy, hx_ = hx;
-
-  int allocs_[kBases] = {};
-
-  for (int b = 0; b < kBases; b++) {
-    allocs_[b] = 0;
-  }
-
+void AssignByDiff() {
   for (int i = 0, h = 0; h < kHomes; h++) {
     for (int b = 0; b < kBases; b++) {
       distances_[i++] = {h, b, Distance(h, b)};
     }
   }
+
   Sort(distances_, distances_ + kDistances,
        [](auto& i, auto& j) { return i.distance < j.distance; });
 
-  bool assigned_[kHomes] = {};
-
-  size_t overs = 0;
   for (int i = 0; i < kDistances; i++) {
     auto& d = distances_[i];
     if (assigned_[d.home]) continue;
@@ -188,8 +178,47 @@ void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],
     h2b_[d.home] = d.base;
     allocs_[d.base]++;
   }
+}
 
-  size_t overflows = Overflows(allocs_);
+unsigned int Overflows() {
+  unsigned int overflows = 0;
+  for (int b = 0; b < kBases; b++) overflows += Max(0, allocs_[b] - kAllocs);
+  return overflows;
+}
+
+void Swap() {
+  for (int nswapped = 0; nswapped < kHomes || 0 < Overflows();) {
+    RandomMove(allocs_);
+
+    if (SwapRandomly()) {
+      nswapped = 0;
+    } else {
+      nswapped++;
+    }
+  }
+
+  PO("allocs_{%d %d %d %d} < %d", allocs_[0], allocs_[1], allocs_[2],
+     allocs_[3], kAllocs);
+}
+
+void SumByBases() {
+  for (int b = 0; b < kBases; b++) {
+    sum_[b] = 0;
+  }
+
+  for (int h = 0; h < kHomes; h++) {
+    sum_[h2b_[h]] += Distance(h, h2b_[h]);
+  }
+}
+
+void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],
+              int hx[kHomes]) {
+  h2b_ = h2b, by_ = by, bx_ = bx, hy_ = hy, hx_ = hx;
+
+  Init();
+  AssignByDiff();
+
+  unsigned int overflows = Overflows();
 
   PO("allocs_{%d %d %d %d} < %d overflows=%ld", allocs_[0], allocs_[1],
      allocs_[2], allocs_[3], kAllocs, overflows);
@@ -216,26 +245,6 @@ void do_alloc(int h2b[kHomes], int by[kBases], int bx[kBases], int hy[kHomes],
   PO("allocs_{%d %d %d %d} < %d", allocs_[0], allocs_[1], allocs_[2],
      allocs_[3], kAllocs);
 
-  long long sum_[kBases] = {};
-
-  for (int b = 0; b < kBases; b++) {
-    sum_[b] = 0;
-  }
-
-  for (int h = 0; h < kHomes; h++) {
-    sum_[h2b_[h]] += Distance(h, h2b_[h]);
-  }
-
-  for (int nswapped = 0; nswapped < kHomes || 0 < Overflows(allocs_);) {
-    RandomMove(allocs_);
-
-    if (RandomSwap(allocs_, sum_)) {
-      nswapped = 0;
-    } else {
-      nswapped++;
-    }
-  }
-
-  PO("allocs_{%d %d %d %d} < %d", allocs_[0], allocs_[1], allocs_[2],
-     allocs_[3], kAllocs);
+  SumByBases();
+  Swap();
 }

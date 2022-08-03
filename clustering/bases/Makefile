@@ -24,6 +24,7 @@ LOGS += $(1).txt
 )
 endef
 
+$(call build,diff_sum_swap)
 $(call build,kmeans_sum_swap)
 $(call build,kmeans_sum)
 $(call build,sort_diff)
